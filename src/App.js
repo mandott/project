@@ -18,11 +18,13 @@ const data = [
 ]
 function Comment(props) {
     return (
-        <div className="container">
-            <div className="item1">{props.username}</div>
-            <p className="item2">{props.comment}</p>
-            <div className="item3"><span className="bi bi-trash">Delete</span></div>
-            <div className="item4"><span className="bi bi-capsule-pill">SwallowMe</span></div>
+        <div className="wrapper">
+            <div className="container">
+                <div className="item1">{props.username}</div>
+                <p className="item2">{props.comment}</p>
+                <div className="item3"><span className="bi bi-trash">Delete</span></div>
+                <div className="item4"><span className="bi bi-capsule-pill">SwallowMe</span></div>
+            </div>
         </div>
     )
 }
