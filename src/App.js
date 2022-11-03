@@ -1,10 +1,12 @@
 import logo from './logo.svg';
 import './App.css';
-import {useState, useEffect} from "react";
+import {useState, useEffect, useMemo} from "react";
 import Popup from 'reactjs-popup';
 import 'reactjs-popup/dist/index.css';
 import {TextField} from '@adobe/react-spectrum';
-import {Flex} from 'react-flex';
+import Flexbox from 'flexbox-react';
+import { Text, TextInput, View } from 'react-native';
+
 /*
  - create a function that sends delete request to server
  - call this function upon click of delete button of each comment
@@ -27,23 +29,51 @@ function Comment(props) {
             <button onClick={closeModal}>  No</button>
         </Popup>
     )
-    let [text, setText] = useState();
-    const [secondaryopen, setSecondaryopen] = useState(false);
-    const closeSecondaryModal = () => setSecondaryopen(false);
+    const [editopen, setEditopen] = useState(false);
+    const closeSecondaryModal = () => setEditopen(false);
+    const [newcomments, setNewcomments] = useState('');
+    const[newlist,setNewlist] = useState([]);
+    const handleSubmit=(e)=>{
+        e.preventDefault();
+        console.log(newcomments)
+        const date={newcomments}
+        if(newcomments){
+            setNewlist((ls)=>[...ls,date])
+            setNewcomments("")
+        }
+    }
+    const newlistItems =newlist.map((a)=><div>
+                        {a.newcomments}</div>)
+
+    //const listItems = comments.map((info) => {
+         //   return <Comment {...info} deleteFunc={onDelete}/>
+      //  }
+    //);
     const EditModal = () => (
-        <Popup open={secondaryopen} closeOnDocumentClick onClose={closeSecondaryModal}>
+        <Popup open={editopen} closeOnDocumentClick onClose={closeSecondaryModal} style={{height: 20}}>
             <span> How would you like to edit this comment?</span>
             <br />
-                <TextField
-                    onChange={setText}
-                    label="Your text" />
-                <pre>Mirrored text: {text}</pre>
+            <View onSubmit={handleSubmit} >
+                <TextInput
+                    style={{height: 50}}
+                    placeholder="Text"
+                    value={newcomments}
+                    onChange={(e)=> setNewcomments(e.target.value)}
+                    onSubmitEditing={handleSubmit}
+                />
+                <Text  style={{padding: 10, fontSize: 42}}>
+                    {}
+                </Text>
+                {newlistItems}
+            </View>
             <br />
-            <button onClick={handleDelete}> SAVE  </button>
+            <button type="submit" onClick={handleDelete}> SAVE  </button>
             <button onClick={closeSecondaryModal}>  CANCEL</button>
         </Popup>
     )
-    //const [value, setValue] = React.useState('Text');
+
+
+        //const [value, setValue] = React.useState('Text');
     return (
         <div className="wrapper">
             <div className="container">
@@ -51,12 +81,13 @@ function Comment(props) {
                 <div className="comment">{props.comment}</div>
                 <div className="deleteButton"><span className="bi bi-trash" onClick={() => setOpen(true)}>Delete</span></div>
                     <DeleteModal />
-                <div className="editButton"><span className="bi bi-capsule-pill" onClick={() => setSecondaryopen(true)}>SwallowMe</span></div>
+                <div className="editButton"><span className="bi bi-capsule-pill" onClick={() => setEditopen(true)}>SwallowMe</span></div>
                     <EditModal />
             </div>
         </div>
     )
 }
+
 function App() {
     const [comments, setComments] = useState([])
     const [, setLoading] = useState(true);
@@ -105,8 +136,7 @@ function App() {
 
     return (
         <header>
-            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css"/>
-            <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" />
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css"/>>
             <div className="grid-container">
                 {listItems}
             </div>
