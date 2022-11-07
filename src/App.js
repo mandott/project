@@ -3,77 +3,64 @@ import './App.css';
 import {useState, useEffect, useMemo} from "react";
 import Popup from 'reactjs-popup';
 import 'reactjs-popup/dist/index.css';
-import {TextField} from '@adobe/react-spectrum';
-import Flexbox from 'flexbox-react';
 import { Text, TextInput, View } from 'react-native';
-
-/*
- - create a function that sends delete request to server
- - call this function upon click of delete button of each comment
-   * first create a function that console.log(id) upon click of delete button
-*/
 
 
 function Comment(props) {
+    const [newComment, setNewComment] = useState('');
     const handleDelete = () => {
         props.deleteFunc(props.id)
-        closeModal()
+        closeDeleteModal()
+    }
+    const handleEdit = () => {
+        props.editFunc(props.id,newComment)
+        closeEditModal()
     }
     const [open, setOpen] = useState(false);
-    const closeModal = () => setOpen(false);
+    const closeDeleteModal = () => setOpen(false);
     const DeleteModal = () => (
-        <Popup open={open} closeOnDocumentClick onClose={closeModal}>
+        <Popup open={open} closeOnDocumentClick onClose={closeDeleteModal}>
             <span> Are you sure you want to delete this comment?</span>
             <br />
             <button onClick={handleDelete}> Yes  </button>
-            <button onClick={closeModal}>  No</button>
+            <button onClick={closeDeleteModal}>  No</button>
         </Popup>
     )
     const [editopen, setEditopen] = useState(false);
-    const closeSecondaryModal = () => setEditopen(false);
-    const [newcomments, setNewcomments] = useState('');
-    const[newlist,setNewlist] = useState([]);
+    const closeEditModal = () => setEditopen(false);
+   /* const[newlist,setNewlist] = useState([]);
     const handleSubmit=(e)=>{
         e.preventDefault();
-        console.log(newcomments)
-        const date={newcomments}
-        if(newcomments){
+        console.log(newComment)
+        const date={newComment}
+        if(newComment){
             setNewlist((ls)=>[...ls,date])
-            setNewcomments("")
+            setNewComment("")
         }
-    }
-    const newlistItems =newlist.map((a)=><div>
-                        {a.newcomments}</div>)
-
-    //const listItems = comments.map((info) => {
-         //   return <Comment {...info} deleteFunc={onDelete}/>
-      //  }
-    //);
+    }*/
+    //const newlistItems =newlist.map((a)=><div>{a.newComment}</div>)
     const EditModal = () => (
-        <Popup open={editopen} closeOnDocumentClick onClose={closeSecondaryModal} style={{height: 20}}>
+        <Popup open={editopen} closeOnDocumentClick onClose={closeEditModal} style={{height: 20}}>
             <span> How would you like to edit this comment?</span>
             <br />
-            <View onSubmit={handleSubmit} >
+            <View>
                 <TextInput
                     style={{height: 50}}
                     placeholder="Text"
-                    value={newcomments}
-                    onChange={(e)=> setNewcomments(e.target.value)}
-                    onSubmitEditing={handleSubmit}
+                    value={newComment}
+                    onChange={(e)=> setNewComment(e.target.value)}
+                    //onSubmitEditing={handleSubmit}
                 />
                 <Text  style={{padding: 10, fontSize: 42}}>
                     {}
                 </Text>
-                {newlistItems}
             </View>
             <br />
-            <button type="submit" onClick={handleDelete}> SAVE  </button>
-            <button onClick={closeSecondaryModal}>  CANCEL</button>
+            <button type="submit" onClick={handleEdit}> SAVE  </button>
+            <button onClick={closeEditModal}>  CANCEL</button>
         </Popup>
     )
 
-
-        //const [value, setValue] = React.useState('Text');
     return (
         <div className="wrapper">
             <div className="container">
@@ -129,8 +116,30 @@ function App() {
             );
     }
 
+    const onEdit = async function (id,comment) {
+        try { const putData = {
+            comment: comment,
+            id: id
+        }
+            const respNewcomments = await fetch('http://localhost:3000/comments/' + id   , {
+                method: "PUT",
+                body: JSON.stringify(putData)})
+                .then(
+                    (response) => {
+                        //return response.json()
+                    }
+                )
+            //setComments(respNewcomments);
+        }
+        catch (err) {
+            setError(true);
+        }
+        finally {
+            setLoading(false);}
+    }
+
     const listItems = comments.map((info) => {
-            return <Comment {...info} deleteFunc={onDelete}/>
+            return <Comment {...info} deleteFunc={onDelete} editFunc={onEdit}/>
         }
     );
 
