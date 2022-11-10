@@ -5,7 +5,6 @@ import Popup from 'reactjs-popup';
 import 'reactjs-popup/dist/index.css';
 import { Text, TextInput, View } from 'react-native';
 
-
 function Comment(props) {
     const [newComment, setNewComment] = useState('');
     const handleDelete = () => {
@@ -117,26 +116,34 @@ function App() {
     }
 
     const onEdit = async function (id,comment) {
-        try { const putData = {
+       /*try { const putData = {
             comment: comment,
             id: id
         }
             const respNewcomments = await fetch('http://localhost:3000/comments/' + id   , {
                 method: "PUT",
+                mode: 'cors',
+                headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify(putData)})
                 .then(
-                    (response) => {
-                        //return response.json()
+                    (response) => {   */
+                        const clone = [...comments]
+                        console.log(clone)
+                        const filteredComments = clone.filter(elem => {return elem.id ===id})
+                        console.log('ayto',filteredComments)
+                        filteredComments[0].comment=comment
+                        console.log(filteredComments[0].comment)
+                        console.log(clone)
+                        setComments(clone)
                     }
-                )
-            //setComments(respNewcomments);
+              /*  ) 
         }
         catch (err) {
             setError(true);
         }
         finally {
             setLoading(false);}
-    }
+    }    */
 
     const listItems = comments.map((info) => {
             return <Comment {...info} deleteFunc={onDelete} editFunc={onEdit}/>
