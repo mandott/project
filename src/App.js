@@ -1,9 +1,10 @@
 import logo from './logo.svg';
 import './App.css';
-import {useState, useEffect, useMemo} from "react";
+import {useState, useEffect, useRef} from "react";
 import Popup from 'reactjs-popup';
 import 'reactjs-popup/dist/index.css';
 import { Text, TextInput, View } from 'react-native';
+
 
 function Comment(props) {
     const [newComment, setNewComment] = useState('');
@@ -27,17 +28,6 @@ function Comment(props) {
     )
     const [editopen, setEditopen] = useState(false);
     const closeEditModal = () => setEditopen(false);
-   /* const[newlist,setNewlist] = useState([]);
-    const handleSubmit=(e)=>{
-        e.preventDefault();
-        console.log(newComment)
-        const date={newComment}
-        if(newComment){
-            setNewlist((ls)=>[...ls,date])
-            setNewComment("")
-        }
-    }*/
-    //const newlistItems =newlist.map((a)=><div>{a.newComment}</div>)
     const EditModal = () => (
         <Popup open={editopen} closeOnDocumentClick onClose={closeEditModal} style={{height: 20}}>
             <span> How would you like to edit this comment?</span>
@@ -48,7 +38,7 @@ function Comment(props) {
                     placeholder="Text"
                     value={newComment}
                     onChange={(e)=> setNewComment(e.target.value)}
-                    //onSubmitEditing={handleSubmit}
+                    onSubmitEditing={handleEdit}
                 />
                 <Text  style={{padding: 10, fontSize: 42}}>
                     {}
@@ -66,13 +56,14 @@ function Comment(props) {
                 <div className="email">{props.email}</div>
                 <div className="comment">{props.comment}</div>
                 <div className="deleteButton"><span className="bi bi-trash" onClick={() => setOpen(true)}>Delete</span></div>
-                    <DeleteModal />
+                <DeleteModal />
                 <div className="editButton"><span className="bi bi-capsule-pill" onClick={() => setEditopen(true)}>SwallowMe</span></div>
-                    <EditModal />
+                <EditModal />
             </div>
         </div>
     )
 }
+
 
 function App() {
     const [comments, setComments] = useState([])
@@ -116,7 +107,7 @@ function App() {
     }
 
     const onEdit = async function (id,comment) {
-       /*try { const putData = {
+       try { const putData = {
             comment: comment,
             id: id
         }
@@ -126,24 +117,68 @@ function App() {
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify(putData)})
                 .then(
-                    (response) => {   */
+                    (response) => {   
                         const clone = [...comments]
                         console.log(clone)
                         const filteredComments = clone.filter(elem => {return elem.id ===id})
                         console.log('ayto',filteredComments)
                         filteredComments[0].comment=comment
                         console.log(filteredComments[0].comment)
-                        console.log(clone)
                         setComments(clone)
                     }
-              /*  ) 
+               )
         }
         catch (err) {
             setError(true);
         }
         finally {
             setLoading(false);}
-    }    */
+    }
+
+
+    const [open, setOpen] = useState(false);
+    const closeCreate = () => setOpen(false);
+    const [newComment, setNewComment] = useState('');
+    const [newEmail, setNewEmail] = useState('');
+    const CreateModal = () => (
+        <Popup open={open} closeOnDocumentClick onClose={closeCreate}>
+            <span>Write your comment!</span>
+            <form>
+                <label htmlFor="email">Email:</label>
+                <input type="text" id="email" name="newEmail" value={newEmail} onChange={(e)=> setNewEmail(e.target.value)}></input>
+                <br/>
+                <label htmlFor="comment">New comment:</label>
+                <input type="text" id="comm" name="newComment" value={newComment} onChange={(e)=> setNewComment(e.target.value)}></input>
+            </form>
+            <button onClick={onCreate}> Submit  </button>
+            <button onClick={closeCreate}>  Exit</button>
+        </Popup>
+    )
+
+    const onCreate = async function (email,comment) {
+        //console.warn(email,comment)
+        try { const putData = {
+            "comment": comment,
+            "email": email
+        }
+            const respNewcomments = await fetch('http://localhost:3000/comments' , {
+                method: "POST",
+                mode: 'cors',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(putData)})
+                .then(
+                    (response) => {
+                        console.warn("added data")
+                    }
+                )
+        }
+        catch (err) {
+            setError(true);
+            console.error('err')
+        }
+        finally {
+            setLoading(false);}
+    }
 
     const listItems = comments.map((info) => {
             return <Comment {...info} deleteFunc={onDelete} editFunc={onEdit}/>
@@ -152,7 +187,9 @@ function App() {
 
     return (
         <header>
-            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css"/>>
+            <button className="createButton" onClick={() => setOpen(true)}>Create new comment</button>
+            <CreateModal/>
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css"/>
             <div className="grid-container">
                 {listItems}
             </div>
